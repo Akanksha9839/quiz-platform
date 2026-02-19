@@ -29,9 +29,11 @@ const CreateQuiz = () => {
 
   const [title, setTitle] = useState("");
   const [question, setQuestion] = useState("");
-
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
+
+  // 🔥 NEW STATE FOR MULTIPLE QUESTIONS
+  const [questions, setQuestions] = useState([]);
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
@@ -39,24 +41,37 @@ const CreateQuiz = () => {
     setOptions(updated);
   };
 
+  // ✅ Add Question (Only Adds To Array)
   const handleAddQuestion = () => {
-    if (!title || !question) return;
+    if (!question) return;
+
+    const newQuestion = {
+      id: uuidv4(),
+      type: questionType,
+      question,
+      options:
+        questionType === "single" || questionType === "multiple"
+          ? options
+          : [],
+      correctAnswer,
+    };
+
+    setQuestions([...questions, newQuestion]);
+
+    // Reset fields
+    setQuestion("");
+    setOptions(["", "", "", ""]);
+    setCorrectAnswer("");
+  };
+
+  // ✅ Final Save Quiz
+  const handleSaveQuiz = () => {
+    if (!title || questions.length === 0) return;
 
     const newQuiz = {
       id: uuidv4(),
       title,
-      questions: [
-        {
-          id: uuidv4(),
-          type: questionType,
-          question,
-          options:
-            questionType === "single" || questionType === "multiple"
-              ? options
-              : [],
-          correctAnswer,
-        },
-      ],
+      questions,
     };
 
     dispatch(addQuiz(newQuiz));
@@ -65,7 +80,6 @@ const CreateQuiz = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 6 }}>
-      {/* Back Button */}
       <Box sx={{ mb: 2 }}>
         <IconButton onClick={() => navigate("/")}>
           <ArrowBackIcon />
@@ -79,7 +93,6 @@ const CreateQuiz = () => {
       {/* Question Type Modal */}
       <Dialog open={open}>
         <DialogTitle>Select Question Type</DialogTitle>
-
         <DialogContent>
           <RadioGroup
             value={questionType}
@@ -107,7 +120,6 @@ const CreateQuiz = () => {
             />
           </RadioGroup>
         </DialogContent>
-
         <DialogActions>
           <Button variant="contained" onClick={() => setOpen(false)}>
             Continue
@@ -134,60 +146,51 @@ const CreateQuiz = () => {
           />
 
           {(questionType === "single" ||
-            questionType === "multiple") && (
-            <>
-              {options.map((opt, index) => (
-                <TextField
-                  key={index}
-                  fullWidth
-                  label={`Option ${index + 1}`}
-                  value={opt}
-                  onChange={(e) =>
-                    handleOptionChange(index, e.target.value)
-                  }
-                  sx={{ mb: 2 }}
-                />
-              ))}
-
+            questionType === "multiple") &&
+            options.map((opt, index) => (
               <TextField
+                key={index}
                 fullWidth
-                label="Correct Answer"
-                value={correctAnswer}
-                onChange={(e) => setCorrectAnswer(e.target.value)}
-                sx={{ mb: 3 }}
+                label={`Option ${index + 1}`}
+                value={opt}
+                onChange={(e) =>
+                  handleOptionChange(index, e.target.value)
+                }
+                sx={{ mb: 2 }}
               />
-            </>
-          )}
+            ))}
 
-          {questionType === "short" && (
-            <TextField
-              fullWidth
-              label="Correct Answer"
-              value={correctAnswer}
-              onChange={(e) => setCorrectAnswer(e.target.value)}
-              sx={{ mb: 3 }}
-            />
-          )}
+          <TextField
+            fullWidth
+            label="Correct Answer"
+            value={correctAnswer}
+            onChange={(e) => setCorrectAnswer(e.target.value)}
+            sx={{ mb: 3 }}
+          />
 
-          {questionType === "description" && (
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Answer Description"
-              value={correctAnswer}
-              onChange={(e) => setCorrectAnswer(e.target.value)}
-              sx={{ mb: 3 }}
-            />
-          )}
+          {/* 🔥 Add Question Button */}
+          <Button
+            variant="outlined"
+            size="large"
+            sx={{ mr: 2 }}
+            onClick={handleAddQuestion}
+          >
+            Add Question
+          </Button>
 
+          {/* ✅ Final Save */}
           <Button
             variant="contained"
             size="large"
-            onClick={handleAddQuestion}
+            onClick={handleSaveQuiz}
           >
             Save Quiz
           </Button>
+
+          {/* Preview Count */}
+          <Typography mt={2}>
+            Total Questions Added: {questions.length}
+          </Typography>
         </Box>
       )}
     </Container>
