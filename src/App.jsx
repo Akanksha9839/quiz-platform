@@ -8,16 +8,16 @@ import Result from "./pages/Result";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/create" element={<CreateQuiz />} />
-        <Route path="/myquizzes" element={<MyQuizzes />} />
-        <Route path="/play" element={<PlayQuiz />} />
-        <Route path="/result" element={<Result />} />
-      </Routes>
-    </BrowserRouter>
+  <HashRouter>
+  <Navbar />
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/create" element={<CreateQuiz />} />
+    <Route path="/myquizzes" element={<MyQuizzes />} />
+    <Route path="/play" element={<PlayQuiz />} />
+    <Route path="/result" element={<Result />} />
+  </Routes>
+</HashRouter>
   );
 }
 
